@@ -28,14 +28,4 @@ namespace MainContents.ParentTest.ECS
         /// </summary>
         public float CurrentRot;
     }
-
-    /// <summary>
-    /// JobSystem非有効識別子用 ダミーデータ
-    /// </summary>
-    public struct DisableJobSystemData : IComponentData { }
-
-    /// <summary>
-    /// JobSystem有効識別子用 ダミーデータ
-    /// </summary>
-    public struct EnableJobSystemData : IComponentData { }
 }

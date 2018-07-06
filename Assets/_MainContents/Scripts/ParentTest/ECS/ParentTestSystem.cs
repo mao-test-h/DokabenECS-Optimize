@@ -1,15 +1,19 @@
-﻿using UnityEngine;
+﻿#if !ENABLE_JOBSYSTEM
+using UnityEngine;
+using UnityEngine.Assertions;
 
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
+using Unity.Rendering;
 
 namespace MainContents.ParentTest.ECS
 {
     /// <summary>
     /// ドカベンロゴ回転システム(親子構造版)
     /// </summary>
+    [UpdateAfter(typeof(MeshFrustumCullingSystem))]
     public class ParentTestSystem : ComponentSystem
     {
         struct Group
@@ -17,16 +21,30 @@ namespace MainContents.ParentTest.ECS
             public readonly int Length;
             public ComponentDataArray<Rotation> Rotation;
             public ComponentDataArray<DokabenRotationData> DokabenRotationData;
-            [ReadOnly] public ComponentDataArray<DisableJobSystemData> Dummy;
+        }
+
+        struct CullingGroup
+        {
+            public readonly int Length;
+            [ReadOnly] public ComponentDataArray<TransformParent> Dummy;    // 子要素識別用
+            [ReadOnly] public ComponentDataArray<MeshCullingComponent> MeshCulling;
         }
 
         [Inject] Group _group;
+        [Inject] CullingGroup _cullingGroup;
 
         protected override void OnUpdate()
         {
             float deltaTime = Time.deltaTime;
+            Assert.IsTrue(
+                this._group.Length == this._cullingGroup.Length,
+                "parent : " + this._group.Length + " child : " + this._cullingGroup.Length);
             for (int i = 0; i < this._group.Length; i++)
             {
+                // カリングされていたら計算しない
+                var culling = this._cullingGroup.MeshCulling[i];
+                if (culling.CullStatus == 1) { return; }
+
                 var rot = this._group.Rotation[i];
                 var dokabenRotData = this._group.DokabenRotationData[i];
 
@@ -54,3 +72,4 @@ namespace MainContents.ParentTest.ECS
         }
     }
 }
+#endif

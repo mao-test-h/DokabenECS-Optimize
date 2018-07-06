@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if ENABLE_JOBSYSTEM
+using UnityEngine;
 
 using Unity.Entities;
 using Unity.Mathematics;
@@ -20,14 +21,17 @@ namespace MainContents.MatrixTest.ECS
         /// 回転行列演算用Job
         /// </summary>
         //[BurstCompile]  // TODO BurstCompolerについて、static、配列などが使えないので作り変える必要ありそう感
-        struct RotateJob : IJobProcessComponentData<MatrixTestComponentData, TransformMatrix, EnableJobSystemData>
+        struct RotateJob : IJobProcessComponentData<MatrixTestComponentData, TransformMatrix, MeshCullingComponent>
         {
             // Time.time
             public float Time;
 
             // Jobで実行されるコード
-            public void Execute(ref MatrixTestComponentData data, ref TransformMatrix transform, ref EnableJobSystemData dummy)
+            public void Execute(ref MatrixTestComponentData data, ref TransformMatrix transform, ref MeshCullingComponent meshCulling)
             {
+                // カリングされていたら計算しない
+                if (meshCulling.CullStatus == 1) { return; }
+
                 float4x4 m = float4x4.identity;
 
                 // 時間の正弦を算出(再生位置を加算することで角度をずらせるように設定)
@@ -74,3 +78,4 @@ namespace MainContents.MatrixTest.ECS
         }
     }
 }
+#endif

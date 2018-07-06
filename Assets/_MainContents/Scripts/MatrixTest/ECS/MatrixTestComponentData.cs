@@ -17,14 +17,4 @@ namespace MainContents.MatrixTest.ECS
         /// </summary>
         public float3 Position;
     }
-
-    /// <summary>
-    /// JobSystem非有効識別子用 ダミーデータ
-    /// </summary>
-    public struct DisableJobSystemData : IComponentData { }
-
-    /// <summary>
-    /// JobSystem有効識別子用 ダミーデータ
-    /// </summary>
-    public struct EnableJobSystemData : IComponentData { }
 }

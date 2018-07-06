@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
+using Unity.Rendering;
 
 using MainContents.ParentTest.ECS;
 
@@ -22,25 +23,18 @@ namespace MainContents.ParentTest
             var entityManager = World.Active.GetOrCreateManager<EntityManager>();
 
             // 親Entityのアーキタイプ
-            // →親EntityはComponentSystem上で実行されるのでJobの有無で分ける
-            var parentArchetype = base._enableJobSystem
-                ? entityManager.CreateArchetype(
-                        typeof(EnableJobSystemData),
-                        typeof(DokabenRotationData),
-                        typeof(Position),
-                        typeof(Rotation),
-                        typeof(TransformMatrix))
-                : entityManager.CreateArchetype(
-                        typeof(DisableJobSystemData),
-                        typeof(DokabenRotationData),
-                        typeof(Position),
-                        typeof(Rotation),
-                        typeof(TransformMatrix));
+            var parentArchetype = entityManager.CreateArchetype(
+                typeof(DokabenRotationData),
+                typeof(Position),
+                typeof(Rotation),
+                typeof(MeshCullingComponent),
+                typeof(TransformMatrix));
 
             // 子Entityのアーキタイプ
             var childArchetype = entityManager.CreateArchetype(
                 typeof(LocalPosition),
                 typeof(LocalRotation),
+                typeof(MeshCullingComponent),
                 typeof(TransformParent),
                 typeof(TransformMatrix));
 

@@ -1,29 +1,35 @@
-﻿using UnityEngine;
+﻿#if ENABLE_JOBSYSTEM
+using UnityEngine;
 
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Jobs;
 using Unity.Burst;
+using Unity.Rendering;
 
 namespace MainContents.ParentTest.ECS
 {
     /// <summary>
     /// ドカベンロゴ回転システム(親子構造版) ※JobSystem併用
     /// </summary>
+    [UpdateAfter(typeof(MeshFrustumCullingSystem))]
     public class ParentTestJobSystem : JobComponentSystem
     {
         /// <summary>
         /// 回転処理用Job
         /// </summary>
         [BurstCompile]
-        struct RotationJob : IJobProcessComponentData<Rotation, DokabenRotationData, EnableJobSystemData>
+        struct RotationJob : IJobProcessComponentData<Rotation, DokabenRotationData, MeshCullingComponent>
         {
             // Time.deltaTime
             public float DeltaTime;
 
-            public void Execute(ref Rotation rot, ref DokabenRotationData dokabenRotData, ref EnableJobSystemData dummy)
+            public void Execute(ref Rotation rot, ref DokabenRotationData dokabenRotData, ref MeshCullingComponent meshCulling)
             {
+                // カリングされていたら計算しない
+                if (meshCulling.CullStatus == 1) { return; }
+
                 if (dokabenRotData.DeltaTimeCounter >= Constants.ParentTest.Interval)
                 {
                     dokabenRotData.CurrentRot += dokabenRotData.CurrentAngle;
@@ -60,3 +66,4 @@ namespace MainContents.ParentTest.ECS
         }
     }
 }
+#endif

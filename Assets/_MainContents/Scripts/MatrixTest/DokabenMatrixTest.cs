@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Unity.Entities;
 using Unity.Transforms;
+using Unity.Rendering;
 
 using MainContents.MatrixTest.ECS;
 
@@ -15,15 +16,10 @@ namespace MainContents.MatrixTest
         {
             var entityManager = World.Active.GetOrCreateManager<EntityManager>();
 
-            var archetype = base._enableJobSystem
-                ? entityManager.CreateArchetype(
-                    typeof(EnableJobSystemData),
-                    typeof(MatrixTestComponentData),
-                    typeof(TransformMatrix))
-                : entityManager.CreateArchetype(
-                    typeof(DisableJobSystemData),
-                    typeof(MatrixTestComponentData),
-                    typeof(TransformMatrix));
+            var archetype = entityManager.CreateArchetype(
+                typeof(MatrixTestComponentData),
+                typeof(MeshCullingComponent),
+                typeof(TransformMatrix));
 
             base.CreateEntitiesFromRandomPosition((randomPosition, look) =>
                 {

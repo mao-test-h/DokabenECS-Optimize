@@ -1,15 +1,18 @@
-﻿using UnityEngine;
+﻿#if !ENABLE_JOBSYSTEM
+using UnityEngine;
 
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
+using Unity.Rendering;
 
 namespace MainContents.MatrixTest.ECS
 {
     /// <summary>
     /// ドカベンロゴ回転システム(回転行列演算版)
     /// </summary>
+    [UpdateAfter(typeof(MeshFrustumCullingSystem))]
     public class MatrixTestSystem : ComponentSystem
     {
         struct Group
@@ -17,7 +20,7 @@ namespace MainContents.MatrixTest.ECS
             public readonly int Length;
             public ComponentDataArray<MatrixTestComponentData> Data;
             public ComponentDataArray<TransformMatrix> Transforms;
-            [ReadOnly] public ComponentDataArray<DisableJobSystemData> Dummy;
+            [ReadOnly] public ComponentDataArray<MeshCullingComponent> MeshCulling;
         }
 
         [Inject] Group _group;
@@ -29,6 +32,10 @@ namespace MainContents.MatrixTest.ECS
 
             for (int i = 0; i < this._group.Length; i++)
             {
+                // カリングされていたら計算しない
+                var culling = this._group.MeshCulling[i];
+                if (culling.CullStatus == 1) { return; }
+
                 var data = this._group.Data[i];
                 float4x4 m = float4x4.identity;
 
@@ -65,3 +72,4 @@ namespace MainContents.MatrixTest.ECS
         }
     }
 }
+#endif
