@@ -20,15 +20,24 @@ namespace MainContents.ParentTest.ECS
         /// 回転処理用Job
         /// </summary>
         [BurstCompile]
+#if ENABLE_FRUSTUM_CULLING
         struct RotationJob : IJobProcessComponentData<LocalRotation, DokabenRotationData, MeshCullingComponent>
+#else
+        struct RotationJob : IJobProcessComponentData<LocalRotation, DokabenRotationData>
+#endif
         {
             // Time.deltaTime
             public float DeltaTime;
 
+#if ENABLE_FRUSTUM_CULLING
             public void Execute(ref LocalRotation localRot, ref DokabenRotationData dokabenRotData, ref MeshCullingComponent meshCulling)
             {
                 // カリングされていたら計算しない
                 if (meshCulling.CullStatus == 1) { return; }
+#else
+            public void Execute(ref LocalRotation localRot, ref DokabenRotationData dokabenRotData)
+            {
+#endif
 
                 if (dokabenRotData.DeltaTimeCounter >= Constants.ParentTest.Interval)
                 {

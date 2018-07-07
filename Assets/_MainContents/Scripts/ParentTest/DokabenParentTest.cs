@@ -26,7 +26,9 @@ namespace MainContents.ParentTest
             var rootArchetype = entityManager.CreateArchetype(
                 typeof(Position),
                 typeof(Rotation),
+#if ENABLE_FRUSTUM_CULLING
                 typeof(MeshCullingComponent),
+#endif
                 typeof(TransformMatrix));
 
             // 親Entityのアーキタイプ
@@ -35,14 +37,18 @@ namespace MainContents.ParentTest
                 typeof(LocalPosition),
                 typeof(LocalRotation),
                 typeof(TransformParent),
+#if ENABLE_FRUSTUM_CULLING
                 typeof(MeshCullingComponent),
+#endif
                 typeof(TransformMatrix));
 
             // 子Entityのアーキタイプ
             var childArchetype = entityManager.CreateArchetype(
                 typeof(LocalPosition),
                 typeof(LocalRotation),
+#if ENABLE_FRUSTUM_CULLING
                 typeof(MeshCullingComponent),
+#endif
                 typeof(TransformParent),
                 typeof(TransformMatrix));
 

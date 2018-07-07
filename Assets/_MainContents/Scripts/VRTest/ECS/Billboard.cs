@@ -49,13 +49,23 @@ namespace MainContents.Billboard.ECS
         /// ビルボード用Job
         /// </summary>
         [BurstCompile]
+#if ENABLE_FRUSTUM_CULLING
         struct BillboardJob : IJobProcessComponentData<Rotation, MeshCullingComponent, EnableBillboard>
+#else
+        struct BillboardJob : IJobProcessComponentData<Rotation, EnableBillboard>
+#endif
         {
             public quaternion CameraRotation;
+
+#if ENABLE_FRUSTUM_CULLING
             public void Execute(ref Rotation rot, ref MeshCullingComponent meshCulling, ref EnableBillboard dummy)
             {
                 // カリングされていたら計算しない
                 if (meshCulling.CullStatus == 1) { return; }
+#else
+            public void Execute(ref Rotation rot, ref EnableBillboard dummy)
+            {
+#endif
                 rot.Value = this.CameraRotation;
             }
         }
@@ -101,7 +111,9 @@ namespace MainContents.Billboard.ECS
             public readonly int Length;
             public ComponentDataArray<Rotation> Rotation;
             [ReadOnly] public ComponentDataArray<EnableBillboard> Dummy;
+#if ENABLE_FRUSTUM_CULLING
             [ReadOnly] public ComponentDataArray<MeshCullingComponent> MeshCulling;
+#endif
         }
 
         [Inject] SharedCameraDataGroup _sharedCameraDataGroup;
@@ -113,11 +125,13 @@ namespace MainContents.Billboard.ECS
             var cameraRot = this._sharedCameraDataGroup.CameraRotation[0].Value;
             for (int i = 0; i < this._rootGroup.Length; ++i)
             {
-                var culling = this._rootGroup.MeshCulling[i];
                 var rot = this._rootGroup.Rotation[i];
 
+#if ENABLE_FRUSTUM_CULLING
                 // カリングされていたら計算しない
+                var culling = this._rootGroup.MeshCulling[i];
                 if (culling.CullStatus == 1) { return; }
+#endif
 
                 rot.Value = cameraRot;
                 this._rootGroup.Rotation[i] = rot;

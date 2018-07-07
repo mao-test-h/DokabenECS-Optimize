@@ -21,17 +21,25 @@ namespace MainContents.MatrixTest.ECS
         /// 回転行列演算用Job
         /// </summary>
         //[BurstCompile]  // TODO BurstCompolerについて、static、配列などが使えないので作り変える必要ありそう感
+#if ENABLE_FRUSTUM_CULLING
         struct RotateJob : IJobProcessComponentData<MatrixTestComponentData, TransformMatrix, MeshCullingComponent>
+#else
+        struct RotateJob : IJobProcessComponentData<MatrixTestComponentData, TransformMatrix>
+#endif
         {
             // Time.time
             public float Time;
 
             // Jobで実行されるコード
+#if ENABLE_FRUSTUM_CULLING
             public void Execute(ref MatrixTestComponentData data, ref TransformMatrix transform, ref MeshCullingComponent meshCulling)
             {
                 // カリングされていたら計算しない
                 if (meshCulling.CullStatus == 1) { return; }
-
+#else
+            public void Execute(ref MatrixTestComponentData data, ref TransformMatrix transform)
+            {
+#endif
                 float4x4 m = float4x4.identity;
 
                 // 時間の正弦を算出(再生位置を加算することで角度をずらせるように設定)

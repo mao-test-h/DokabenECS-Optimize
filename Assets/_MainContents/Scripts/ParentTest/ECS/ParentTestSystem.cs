@@ -22,7 +22,9 @@ namespace MainContents.ParentTest.ECS
             public readonly int Length;
             public ComponentDataArray<LocalRotation> LocalRotation;
             public ComponentDataArray<DokabenRotationData> DokabenRotationData;
+#if ENABLE_FRUSTUM_CULLING
             [ReadOnly] public ComponentDataArray<MeshCullingComponent> MeshCulling;
+#endif
         }
 
         [Inject] ParentGroup _parentGroup;
@@ -32,9 +34,11 @@ namespace MainContents.ParentTest.ECS
             float deltaTime = Time.deltaTime;
             for (int i = 0; i < this._parentGroup.Length; i++)
             {
+#if ENABLE_FRUSTUM_CULLING
                 // カリングされていたら計算しない
                 var culling = this._parentGroup.MeshCulling[i];
                 if (culling.CullStatus == 1) { return; }
+#endif
 
                 var rot = this._parentGroup.LocalRotation[i];
                 var dokabenRotData = this._parentGroup.DokabenRotationData[i];

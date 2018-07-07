@@ -43,7 +43,9 @@ namespace MainContents.VRTest
                 typeof(Position),
                 typeof(Rotation),
                 typeof(EnableBillboard),
+#if ENABLE_FRUSTUM_CULLING
                 typeof(MeshCullingComponent),
+#endif
                 typeof(TransformMatrix));
 
             // 親Entityのアーキタイプ
@@ -52,14 +54,18 @@ namespace MainContents.VRTest
                 typeof(LocalPosition),
                 typeof(LocalRotation),
                 typeof(TransformParent),
+#if ENABLE_FRUSTUM_CULLING
                 typeof(MeshCullingComponent),
+#endif
                 typeof(TransformMatrix));
 
             // 子Entityのアーキタイプ
             var childArchetype = entityManager.CreateArchetype(
                 typeof(LocalPosition),
                 typeof(LocalRotation),
+#if ENABLE_FRUSTUM_CULLING
                 typeof(MeshCullingComponent),
+#endif
                 typeof(TransformParent),
                 typeof(TransformMatrix));
 
@@ -98,7 +104,7 @@ namespace MainContents.VRTest
             // カメラ情報参照用Entityの生成
             var sharedCameraDataEntity = entityManager.CreateEntity(sharedCameraDataArchetype);
             entityManager.SetComponentData(sharedCameraDataEntity, new SharedCameraData());
-            entityManager.AddSharedComponentData(sharedCameraDataEntity, new CameraRotation { Value = this._cameraTrs.rotation });
+            entityManager.AddSharedComponentData(sharedCameraDataEntity, new CameraRotation { Value = this.GetBillboardRotation(this._cameraTrs.rotation) });
             this._sharedCameraDataEntity = sharedCameraDataEntity;
 
             this._entityManager = entityManager;
@@ -115,7 +121,13 @@ namespace MainContents.VRTest
             // Update内でとんでもない数のEntityを面倒見無くてはならなくなるので、
             // 予めカメラ情報参照用のEntityを一つだけ生成し、そいつのみに更新情報を渡す形にする。
             // →その上で必要なComponentSystem内でカメラ情報参照用のEntityをInjectして参照すること。
-            this._entityManager.SetSharedComponentData(this._sharedCameraDataEntity, new CameraRotation { Value = this._cameraTrs.rotation });
+            this._entityManager.SetSharedComponentData(this._sharedCameraDataEntity, new CameraRotation { Value = this.GetBillboardRotation(this._cameraTrs.rotation) });
+        }
+
+        quaternion GetBillboardRotation(Quaternion rot)
+        {
+            var euler = rot.eulerAngles;
+            return Quaternion.Euler(new Vector3(euler.x, euler.y, 0f));
         }
     }
 }

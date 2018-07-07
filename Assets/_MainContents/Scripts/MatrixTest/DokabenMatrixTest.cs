@@ -18,7 +18,9 @@ namespace MainContents.MatrixTest
 
             var archetype = entityManager.CreateArchetype(
                 typeof(MatrixTestComponentData),
+#if ENABLE_FRUSTUM_CULLING
                 typeof(MeshCullingComponent),
+#endif
                 typeof(TransformMatrix));
 
             base.CreateEntitiesFromRandomPosition((randomPosition, look) =>

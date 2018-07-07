@@ -20,7 +20,9 @@ namespace MainContents.MatrixTest.ECS
             public readonly int Length;
             public ComponentDataArray<MatrixTestComponentData> Data;
             public ComponentDataArray<TransformMatrix> Transforms;
+#if ENABLE_FRUSTUM_CULLING
             [ReadOnly] public ComponentDataArray<MeshCullingComponent> MeshCulling;
+#endif
         }
 
         [Inject] Group _group;
@@ -32,9 +34,11 @@ namespace MainContents.MatrixTest.ECS
 
             for (int i = 0; i < this._group.Length; i++)
             {
+#if ENABLE_FRUSTUM_CULLING
                 // カリングされていたら計算しない
                 var culling = this._group.MeshCulling[i];
                 if (culling.CullStatus == 1) { return; }
+#endif
 
                 var data = this._group.Data[i];
                 float4x4 m = float4x4.identity;
