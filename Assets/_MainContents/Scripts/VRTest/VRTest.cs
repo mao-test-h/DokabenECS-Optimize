@@ -5,15 +5,31 @@ using Unity.Mathematics;
 using Unity.Rendering;
 
 using MainContents.ParentTest.ECS;
+using MainContents.Billboard.ECS;
 
-namespace MainContents.ParentTest
+namespace MainContents.VRTest
 {
-    public class DokabenParentTest : DokabenTestBase
+    public class VRTest : DokabenTestBase
     {
         /// <summary>
         /// 子オブジェクトのオフセット
         /// </summary>
         [SerializeField] Vector3 _childOffset;
+
+        /// <summary>
+        /// CameraのTransformの参照
+        /// </summary>
+        [SerializeField] Transform _cameraTrs;
+
+        /// <summary>
+        /// EntityManager
+        /// </summary>
+        EntityManager _entityManager;
+
+        /// <summary>
+        /// カメラ情報参照用Entity
+        /// </summary>
+        Entity _sharedCameraDataEntity;
 
         /// <summary>
         /// MonoBehaviour.Start
@@ -26,6 +42,7 @@ namespace MainContents.ParentTest
             var rootArchetype = entityManager.CreateArchetype(
                 typeof(Position),
                 typeof(Rotation),
+                typeof(EnableBillboard),
                 typeof(MeshCullingComponent),
                 typeof(TransformMatrix));
 
@@ -45,6 +62,10 @@ namespace MainContents.ParentTest
                 typeof(MeshCullingComponent),
                 typeof(TransformParent),
                 typeof(TransformMatrix));
+
+            // カメラ情報参照用Entityの生成
+            var sharedCameraDataArchetype = entityManager.CreateArchetype(
+                typeof(SharedCameraData));
 
             // ドカベンロゴの生成
             base.CreateEntitiesFromRandomPosition((randomPosition, look) =>
@@ -73,6 +94,28 @@ namespace MainContents.ParentTest
                     entityManager.SetComponentData(childEntity, new TransformParent { Value = parentEntity });
                     entityManager.AddSharedComponentData(childEntity, look);
                 });
+
+            // カメラ情報参照用Entityの生成
+            var sharedCameraDataEntity = entityManager.CreateEntity(sharedCameraDataArchetype);
+            entityManager.SetComponentData(sharedCameraDataEntity, new SharedCameraData());
+            entityManager.AddSharedComponentData(sharedCameraDataEntity, new CameraRotation { Value = this._cameraTrs.rotation });
+            this._sharedCameraDataEntity = sharedCameraDataEntity;
+
+            this._entityManager = entityManager;
+        }
+
+        /// <summary>
+        /// MonoBehaviour.Update
+        /// </summary>
+        void Update()
+        {
+            // こればかりはUpdate内で更新...
+
+            // 但し全てのEntityに対してCamera座標を持たせた上で更新を行う形で実装すると、
+            // Update内でとんでもない数のEntityを面倒見無くてはならなくなるので、
+            // 予めカメラ情報参照用のEntityを一つだけ生成し、そいつのみに更新情報を渡す形にする。
+            // →その上で必要なComponentSystem内でカメラ情報参照用のEntityをInjectして参照すること。
+            this._entityManager.SetSharedComponentData(this._sharedCameraDataEntity, new CameraRotation { Value = this._cameraTrs.rotation });
         }
     }
 }

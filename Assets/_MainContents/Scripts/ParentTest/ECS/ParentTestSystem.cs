@@ -16,37 +16,28 @@ namespace MainContents.ParentTest.ECS
     [UpdateAfter(typeof(MeshFrustumCullingSystem))]
     public class ParentTestSystem : ComponentSystem
     {
-        struct Group
+        // 回転用親ノード
+        struct ParentGroup
         {
             public readonly int Length;
-            public ComponentDataArray<Rotation> Rotation;
+            public ComponentDataArray<LocalRotation> LocalRotation;
             public ComponentDataArray<DokabenRotationData> DokabenRotationData;
-        }
-
-        struct CullingGroup
-        {
-            public readonly int Length;
-            [ReadOnly] public ComponentDataArray<TransformParent> Dummy;    // 子要素識別用
             [ReadOnly] public ComponentDataArray<MeshCullingComponent> MeshCulling;
         }
 
-        [Inject] Group _group;
-        [Inject] CullingGroup _cullingGroup;
+        [Inject] ParentGroup _parentGroup;
 
         protected override void OnUpdate()
         {
             float deltaTime = Time.deltaTime;
-            Assert.IsTrue(
-                this._group.Length == this._cullingGroup.Length,
-                "parent : " + this._group.Length + " child : " + this._cullingGroup.Length);
-            for (int i = 0; i < this._group.Length; i++)
+            for (int i = 0; i < this._parentGroup.Length; i++)
             {
                 // カリングされていたら計算しない
-                var culling = this._cullingGroup.MeshCulling[i];
+                var culling = this._parentGroup.MeshCulling[i];
                 if (culling.CullStatus == 1) { return; }
 
-                var rot = this._group.Rotation[i];
-                var dokabenRotData = this._group.DokabenRotationData[i];
+                var rot = this._parentGroup.LocalRotation[i];
+                var dokabenRotData = this._parentGroup.DokabenRotationData[i];
 
                 if (dokabenRotData.DeltaTimeCounter >= Constants.ParentTest.Interval)
                 {
@@ -66,8 +57,8 @@ namespace MainContents.ParentTest.ECS
                     dokabenRotData.DeltaTimeCounter += deltaTime;
                 }
 
-                this._group.Rotation[i] = rot;
-                this._group.DokabenRotationData[i] = dokabenRotData;
+                this._parentGroup.LocalRotation[i] = rot;
+                this._parentGroup.DokabenRotationData[i] = dokabenRotData;
             }
         }
     }

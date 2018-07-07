@@ -172,7 +172,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 277822778}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -200}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -251,32 +251,14 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 479798121}
-  - component: {fileID: 479798120}
+  - component: {fileID: 479798122}
   m_Layer: 0
-  m_Name: ParentTest
+  m_Name: VRTest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &479798120
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 479798119}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4c0f0842ad2fea4e8b2d98428e03385, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _enableJobSystem: 1
-  _dokabenRenderData:
-    Sprite: {fileID: 21300000, guid: 6f90298b5ebfd234ea51be8768ae4500, type: 3}
-    Material: {fileID: 2100000, guid: 86e257c7f00d73d47b248c90ee41b99a, type: 2}
-  _boundSize: {x: 256, y: 256, z: 256}
-  _maxObjectNum: 10000
-  _childOffset: {x: 0, y: 0.65, z: 0}
 --- !u!4 &479798121
 Transform:
   m_ObjectHideFlags: 0
@@ -290,3 +272,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &479798122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 479798119}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb15d4bfdb8cb594c8b0f09c3170b3dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enableJobSystem: 1
+  _dokabenRenderData:
+    Sprite: {fileID: 21300000, guid: 6f90298b5ebfd234ea51be8768ae4500, type: 3}
+    Material: {fileID: 2100000, guid: 86e257c7f00d73d47b248c90ee41b99a, type: 2}
+  _boundSize: {x: 256, y: 256, z: 256}
+  _maxObjectNum: 10000
+  _childOffset: {x: 0, y: 0.65, z: 0}
+  _cameraTrs: {fileID: 277822782}

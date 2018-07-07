@@ -6,7 +6,7 @@ using Unity.Transforms;
 
 namespace MainContents.ParentTest.ECS
 {
-    public struct DokabenRotationData :  IComponentData
+    public struct DokabenRotationData : IComponentData
     {
         /// <summary>
         /// 経過時間計測用

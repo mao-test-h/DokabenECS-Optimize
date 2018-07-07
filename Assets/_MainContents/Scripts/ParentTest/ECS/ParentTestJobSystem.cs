@@ -20,12 +20,12 @@ namespace MainContents.ParentTest.ECS
         /// 回転処理用Job
         /// </summary>
         [BurstCompile]
-        struct RotationJob : IJobProcessComponentData<Rotation, DokabenRotationData, MeshCullingComponent>
+        struct RotationJob : IJobProcessComponentData<LocalRotation, DokabenRotationData, MeshCullingComponent>
         {
             // Time.deltaTime
             public float DeltaTime;
 
-            public void Execute(ref Rotation rot, ref DokabenRotationData dokabenRotData, ref MeshCullingComponent meshCulling)
+            public void Execute(ref LocalRotation localRot, ref DokabenRotationData dokabenRotData, ref MeshCullingComponent meshCulling)
             {
                 // カリングされていたら計算しない
                 if (meshCulling.CullStatus == 1) { return; }
@@ -34,7 +34,7 @@ namespace MainContents.ParentTest.ECS
                 {
                     dokabenRotData.CurrentRot += dokabenRotData.CurrentAngle;
                     var axis = new float3(1, 0, 0);
-                    rot.Value = quaternion.axisAngle(axis, math.radians(dokabenRotData.CurrentRot));
+                    localRot.Value = quaternion.axisAngle(axis, math.radians(dokabenRotData.CurrentRot));
                     dokabenRotData.FrameCounter = dokabenRotData.FrameCounter + 1;
                     if (dokabenRotData.FrameCounter >= Constants.ParentTest.Framerate)
                     {
@@ -50,19 +50,19 @@ namespace MainContents.ParentTest.ECS
             }
         }
 
-        RotationJob _job;
+        RotationJob _rotationjob;
 
         protected override void OnCreateManager(int capacity)
         {
             base.OnCreateManager(capacity);
-            this._job = new RotationJob();
+            this._rotationjob = new RotationJob();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             // Jobの実行
-            this._job.DeltaTime = Time.deltaTime;
-            return this._job.Schedule(this, 7, inputDeps);
+            this._rotationjob.DeltaTime = Time.deltaTime;
+            return this._rotationjob.Schedule(this, 7, inputDeps);
         }
     }
 }
