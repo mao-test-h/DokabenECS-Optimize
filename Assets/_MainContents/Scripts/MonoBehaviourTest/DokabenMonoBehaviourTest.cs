@@ -6,7 +6,7 @@ namespace MainContents.MonoBehaviourTest
     /// <summary>
     /// ドカベンロゴの回転(MonoBehaviour)
     /// </summary>
-    public class DokabenMonoBehaviourTest : MonoBehaviour
+    public sealed class DokabenMonoBehaviourTest : MonoBehaviour
     {
         // ------------------------------
         #region // Defines
@@ -20,7 +20,7 @@ namespace MainContents.MonoBehaviourTest
         /// <summary>
         /// ドカベンロゴ
         /// </summary>
-        public class Dokaben
+        public sealed class Dokaben
         {
             /// <summary>
             /// 自信のメッシュの参照
@@ -140,7 +140,6 @@ namespace MainContents.MonoBehaviourTest
         Dokaben[] _dokabens = null;
 
         #endregion // Private Members
-
 
 
         // ----------------------------------------------------
