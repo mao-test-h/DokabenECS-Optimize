@@ -9,7 +9,7 @@ using MainContents.Billboard.ECS;
 
 namespace MainContents.VRTest
 {
-    public class VRTest : DokabenTestBase
+    public sealed class VRTest : DokabenTestBase
     {
         /// <summary>
         /// 子オブジェクトのオフセット

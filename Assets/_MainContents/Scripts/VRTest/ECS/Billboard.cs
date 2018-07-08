@@ -33,7 +33,7 @@ namespace MainContents.Billboard.ECS
     /// <summary>
     /// ドカベンロゴビルボードシステム ※JobSystem併用
     /// </summary>
-    public class ParentTestBillboardJobSystem : JobComponentSystem
+    public sealed class ParentTestBillboardJobSystem : JobComponentSystem
     {
         /// <summary>
         /// カメラ情報参照用Entity

@@ -15,7 +15,7 @@ namespace MainContents.MatrixTest.ECS
     /// </summary>
     /// <remarks>JobComponentSystemを継承した実装</remarks>
     [UpdateAfter(typeof(MeshInstanceRendererSystem))]   // MeshInstanceRendererSystemでJob待ち?が発生するっぽいので後に実行。しかし毎フレーム解決されるわけではない...
-    public class MatrixTestJobSystem : JobComponentSystem
+    public sealed class MatrixTestJobSystem : JobComponentSystem
     {
         /// <summary>
         /// 回転行列演算用Job

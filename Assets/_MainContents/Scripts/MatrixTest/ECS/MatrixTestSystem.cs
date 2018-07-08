@@ -13,7 +13,7 @@ namespace MainContents.MatrixTest.ECS
     /// ドカベンロゴ回転システム(回転行列演算版)
     /// </summary>
     [UpdateAfter(typeof(MeshFrustumCullingSystem))]
-    public class MatrixTestSystem : ComponentSystem
+    public sealed class MatrixTestSystem : ComponentSystem
     {
         struct Group
         {

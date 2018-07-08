@@ -8,9 +8,9 @@ namespace MainContents
     /// <summary>
     /// 共通定数
     /// </summary>
-    public class Constants
+    public sealed class Constants
     {
-        public class MatrixTest
+        public sealed class MatrixTest
         {
             /// <summary>
             /// コマ落ちアニメーションテーブル
@@ -40,7 +40,7 @@ namespace MainContents
             public const float AnimationSpeed = 1f;
         }
 
-        public class ParentTest
+        public sealed class ParentTest
         {
             /// <summary>
             /// コマ数

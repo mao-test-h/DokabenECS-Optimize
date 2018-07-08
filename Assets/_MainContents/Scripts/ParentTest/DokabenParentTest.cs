@@ -8,7 +8,7 @@ using MainContents.ParentTest.ECS;
 
 namespace MainContents.ParentTest
 {
-    public class DokabenParentTest : DokabenTestBase
+    public sealed class DokabenParentTest : DokabenTestBase
     {
         /// <summary>
         /// 子オブジェクトのオフセット
