@@ -43,7 +43,7 @@ namespace MainContents.ParentTest.ECS
                 {
                     dokabenRotData.CurrentRot += dokabenRotData.CurrentAngle;
                     var axis = new float3(1, 0, 0);
-                    localRot.Value = quaternion.axisAngle(axis, math.radians(dokabenRotData.CurrentRot));
+                    localRot.Value = quaternion.rotateX(math.radians(dokabenRotData.CurrentRot));
                     dokabenRotData.FrameCounter = dokabenRotData.FrameCounter + 1;
                     if (dokabenRotData.FrameCounter >= Constants.ParentTest.Framerate)
                     {

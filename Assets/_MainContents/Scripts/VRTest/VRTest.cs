@@ -36,6 +36,8 @@ namespace MainContents.VRTest
         /// </summary>
         void Start()
         {
+            //UnityEngine.XR.XRSettings.eyeTextureResolutionScale = 0.5f;
+
             var entityManager = World.Active.GetOrCreateManager<EntityManager>();
 
             // Root Entityのアーキタイプ
