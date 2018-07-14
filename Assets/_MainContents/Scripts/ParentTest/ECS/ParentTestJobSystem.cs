@@ -13,7 +13,6 @@ namespace MainContents.ParentTest.ECS
     /// <summary>
     /// ドカベンロゴ回転システム(親子構造版) ※JobSystem併用
     /// </summary>
-    [UpdateAfter(typeof(MeshFrustumCullingSystem))]
     public sealed class ParentTestJobSystem : JobComponentSystem
     {
         /// <summary>

@@ -53,7 +53,6 @@ namespace MainContents.MatrixTest.ECS
                 float rot = Constants.MatrixTest.AnimationTable[animIndex] * math.radians(90f);
 
                 // 任意の原点周りにX軸回転を行う(原点を-0.5ずらして下端に設定)
-                // ※最新のUnity.Mathematicsだとfloat4x4も列優先みたいなので注意(少し前は行優先だった)
                 float y = 0f, z = 0f;
                 float halfY = y - 0.5f;
                 float sin = math.sin(rot);

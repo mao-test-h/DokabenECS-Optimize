@@ -13,7 +13,7 @@ namespace MainContents.ParentTest.ECS
     /// <summary>
     /// ドカベンロゴ回転システム(親子構造版)
     /// </summary>
-    [UpdateAfter(typeof(MeshFrustumCullingSystem))]
+    //[UpdateAfter(typeof(MeshFrustumCullingSystem))]
     public sealed class ParentTestSystem : ComponentSystem
     {
         // 回転用親ノード
