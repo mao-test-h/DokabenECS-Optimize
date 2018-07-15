@@ -12,6 +12,28 @@ namespace MainContents.MonoBehaviourTest
         #region // Defines
 
         /// <summary>
+        /// コマ落ちアニメーションテーブル
+        /// </summary>
+        public static readonly float[] AnimationTable =
+            new float[] {
+                1f,
+                0.9333333333333333f,
+                0.8666666666666667f,
+                0.8f,
+                0.7333333333333333f,
+                0.6666666666666666f,
+                0.6f,
+                0.5333333333333333f,
+                0.4666666666666667f,
+                0.4f,
+                0.3333333333333333f,
+                0.26666666666666666f,
+                0.2f,
+                0.13333333333333333f,
+                0.06666666666666667f,
+                0f };
+
+        /// <summary>
         /// ドカベンロゴのサイズ
         /// </summary>
         /// <remarks>※Quadを変形させているのでサイズ指定が必要</remarks>
@@ -79,8 +101,8 @@ namespace MainContents.MonoBehaviourTest
                 float normal = (sinTime + 1f) / 2f;
 
                 // X軸に0~90度回転
-                var index = (int)Mathf.Round(normal * (Constants.MatrixTest.AnimationTable.Length - 1));
-                float rot = Constants.MatrixTest.AnimationTable[index] * (90 * Mathf.Deg2Rad);
+                var index = (int)Mathf.Round(normal * (AnimationTable.Length - 1));
+                float rot = AnimationTable[index] * (90 * Mathf.Deg2Rad);
 
                 // 原点を-0.5ずらして下端に設定
                 float y = 0f, z = 0f;

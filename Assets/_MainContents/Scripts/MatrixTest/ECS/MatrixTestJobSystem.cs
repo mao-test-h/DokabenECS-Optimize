@@ -14,13 +14,13 @@ namespace MainContents.MatrixTest.ECS
     /// ドカベンロゴ回転システム(回転行列演算版) ※JobSystem併用
     /// </summary>
     /// <remarks>JobComponentSystemを継承した実装</remarks>
-    [UpdateAfter(typeof(MeshInstanceRendererSystem))]   // MeshInstanceRendererSystemでJob待ち?が発生するっぽいので後に実行。しかし毎フレーム解決されるわけではない...
+    [UpdateAfter(typeof(MeshInstanceRendererSystem))]   // MeshInstanceRendererSystemの処理負荷軽減の為に後に回す
     public sealed class MatrixTestJobSystem : JobComponentSystem
     {
         /// <summary>
         /// 回転行列演算用Job
         /// </summary>
-        //[BurstCompile]  // TODO BurstCompolerについて、static、配列などが使えないので作り変える必要ありそう感
+        [BurstCompile]
 #if ENABLE_FRUSTUM_CULLING
         struct RotateJob : IJobProcessComponentData<MatrixTestComponentData, TransformMatrix, MeshCullingComponent>
 #else
@@ -49,8 +49,20 @@ namespace MainContents.MatrixTest.ECS
                 float normal = (sinTime + 1f) / 2f;
 
                 // X軸に0~90度回転
-                var animIndex = (int)math.round(normal * (Constants.MatrixTest.AnimationTable.Length - 1));
-                float rot = Constants.MatrixTest.AnimationTable[animIndex] * math.radians(90f);
+                float rot = 0f;
+                // BurstCompileを有効にする場合、通常の配列にはアクセスできないのでスタック上に静的確保を行う形にする。
+                unsafe
+                {
+                    float* AnimationTable = stackalloc float[16];
+                    const int AnimationTableLength = 16;
+                    for (int i = 0; i < AnimationTableLength; ++i)
+                    {
+                        float calc = (1f - (i * 0.06666666666666667f));
+                        AnimationTable[i] = (calc <= 0f) ? 0f : calc;
+                    }
+                    var animIndex = (int)math.round(normal * (AnimationTableLength - 1));
+                    rot = AnimationTable[animIndex] * math.radians(90f);
+                }
 
                 // 任意の原点周りにX軸回転を行う(原点を-0.5ずらして下端に設定)
                 float y = 0f, z = 0f;
