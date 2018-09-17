@@ -1,5 +1,4 @@
-﻿#if false
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Assertions;
 
 using Unity.Entities;
@@ -9,11 +8,14 @@ using Unity.Jobs;
 using Unity.Burst;
 using Unity.Rendering;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+
+using System;
+
+using MainContents.Billboard.ECS;
 
 namespace MainContents.ParentTest.ECS
 {
-#if ENABLE_JOBSYSTEM
-
     /// <summary>
     /// ドカベンロゴビルボードシステム ※JobSystem併用
     /// </summary>
@@ -33,13 +35,11 @@ namespace MainContents.ParentTest.ECS
         /// ビルボード用Job
         /// </summary>
         [BurstCompile]
-        struct BillboardJob : IJobProcessComponentData<Rotation, MeshCullingComponent>
+        struct BillboardJob : IJobProcessComponentData<Rotation>
         {
             public quaternion CameraRotation;
-            public void Execute(ref Rotation rot, ref MeshCullingComponent meshCulling)
+            public void Execute(ref Rotation rot)
             {
-                // カリングされていたら計算しない
-                if (meshCulling.CullStatus == 1) { return; }
                 rot.Value = this.CameraRotation;
             }
         }
@@ -47,9 +47,9 @@ namespace MainContents.ParentTest.ECS
         [Inject] SharedCameraDataGroup _sharedCameraDataGroup;
         BillboardJob _billboardJob;
 
-        protected override void OnCreateManager(int capacity)
+        protected override void OnCreateManager()
         {
-            base.OnCreateManager(capacity);
+            base.OnCreateManager();
             this._billboardJob = new BillboardJob();
         }
 
@@ -61,11 +61,9 @@ namespace MainContents.ParentTest.ECS
             // IJobProcessComponentDataに対しISharedComponentDataを直接渡すことは出来ない?みたいなので、
             // 予めInjectしたカメラの回転情報をScheduleを叩く前に渡した上で実行する
             this._billboardJob.CameraRotation = this._sharedCameraDataGroup.CameraRotation[0].Value;
-            return this._billboardJob.Schedule(this, 7, inputDeps);
+            return this._billboardJob.Schedule(this, inputDeps);
         }
     }
-
-#else
 
     /// <summary>
     /// ドカベンロゴビルボードシステム
@@ -84,7 +82,6 @@ namespace MainContents.ParentTest.ECS
         {
             public readonly int Length;
             public ComponentDataArray<Rotation> Rotation;
-            [ReadOnly] public ComponentDataArray<MeshCullingComponent> MeshCulling;
         }
 
         [Inject] SharedCameraDataGroup _sharedCameraDataGroup;
@@ -96,18 +93,10 @@ namespace MainContents.ParentTest.ECS
             var cameraRot = this._sharedCameraDataGroup.CameraRotation[0].Value;
             for (int i = 0; i < this._rootGroup.Length; ++i)
             {
-                var culling = this._rootGroup.MeshCulling[i];
                 var rot = this._rootGroup.Rotation[i];
-
-                // カリングされていたら計算しない
-                if (culling.CullStatus == 1) { return; }
-
                 rot.Value = cameraRot;
                 this._rootGroup.Rotation[i] = rot;
             }
         }
     }
-#endif
 }
-
-#endif

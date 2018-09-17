@@ -1,11 +1,9 @@
-﻿using UnityEngine;
-using UnityEngine.Assertions;
+﻿using UnityEngine.Assertions;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Jobs;
 using Unity.Burst;
-using Unity.Rendering;
 using Unity.Collections;
 
 namespace MainContents.Billboard.ECS
@@ -28,12 +26,10 @@ namespace MainContents.Billboard.ECS
         public quaternion Value;
     }
 
-#if ENABLE_JOBSYSTEM
-
     /// <summary>
     /// ドカベンロゴビルボードシステム ※JobSystem併用
     /// </summary>
-    public class ParentTestBillboardJobSystem : JobComponentSystem
+    public sealed class ParentTestBillboardJobSystem : JobComponentSystem
     {
         /// <summary>
         /// カメラ情報参照用Entity
@@ -49,25 +45,16 @@ namespace MainContents.Billboard.ECS
         /// ビルボード用Job
         /// </summary>
         [BurstCompile]
-        struct BillboardJob : IJobProcessComponentData<Rotation, MeshCullingComponent, EnableBillboard>
+        struct BillboardJob : IJobProcessComponentData<Rotation, EnableBillboard>
         {
             public quaternion CameraRotation;
-            public void Execute(ref Rotation rot, ref MeshCullingComponent meshCulling, ref EnableBillboard dummy)
-            {
-                // カリングされていたら計算しない
-                if (meshCulling.CullStatus == 1) { return; }
-                rot.Value = this.CameraRotation;
-            }
+            public void Execute(ref Rotation rot, ref EnableBillboard dummy) => rot.Value = this.CameraRotation;
         }
 
         [Inject] SharedCameraDataGroup _sharedCameraDataGroup;
         BillboardJob _billboardJob;
 
-        protected override void OnCreateManager(int capacity)
-        {
-            base.OnCreateManager(capacity);
-            this._billboardJob = new BillboardJob();
-        }
+        protected override void OnCreateManager() => this._billboardJob = new BillboardJob();
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
@@ -77,16 +64,14 @@ namespace MainContents.Billboard.ECS
             // IJobProcessComponentDataに対しISharedComponentDataを直接渡すことは出来ない?みたいなので、
             // 予めInjectしたカメラの回転情報をScheduleを叩く前に渡した上で実行する
             this._billboardJob.CameraRotation = this._sharedCameraDataGroup.CameraRotation[0].Value;
-            return this._billboardJob.Schedule(this, 7, inputDeps);
+            return this._billboardJob.Schedule(this, inputDeps);
         }
     }
-
-#else
 
     /// <summary>
     /// ドカベンロゴビルボードシステム
     /// </summary>
-    public class ParentTestBillboardSystem : ComponentSystem
+    public sealed class ParentTestBillboardSystem : ComponentSystem
     {
         struct SharedCameraDataGroup
         {
@@ -101,7 +86,6 @@ namespace MainContents.Billboard.ECS
             public readonly int Length;
             public ComponentDataArray<Rotation> Rotation;
             [ReadOnly] public ComponentDataArray<EnableBillboard> Dummy;
-            [ReadOnly] public ComponentDataArray<MeshCullingComponent> MeshCulling;
         }
 
         [Inject] SharedCameraDataGroup _sharedCameraDataGroup;
@@ -113,18 +97,11 @@ namespace MainContents.Billboard.ECS
             var cameraRot = this._sharedCameraDataGroup.CameraRotation[0].Value;
             for (int i = 0; i < this._rootGroup.Length; ++i)
             {
-                var culling = this._rootGroup.MeshCulling[i];
                 var rot = this._rootGroup.Rotation[i];
-
-                // カリングされていたら計算しない
-                if (culling.CullStatus == 1) { return; }
 
                 rot.Value = cameraRot;
                 this._rootGroup.Rotation[i] = rot;
             }
         }
     }
-#endif
-
-
 }

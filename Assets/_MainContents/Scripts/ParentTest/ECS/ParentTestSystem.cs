@@ -1,66 +1,68 @@
-﻿#if !ENABLE_JOBSYSTEM
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Assertions;
 
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Rendering;
+
+using System;
 
 namespace MainContents.ParentTest.ECS
 {
     /// <summary>
     /// ドカベンロゴ回転システム(親子構造版)
     /// </summary>
-    [UpdateAfter(typeof(MeshFrustumCullingSystem))]
-    public class ParentTestSystem : ComponentSystem
+    public sealed class ParentTestSystem : ComponentSystem
     {
         // 回転用親ノード
-        struct ParentGroup
+        private readonly EntityArchetypeQuery query = new EntityArchetypeQuery
         {
-            public readonly int Length;
-            public ComponentDataArray<LocalRotation> LocalRotation;
-            public ComponentDataArray<DokabenRotationData> DokabenRotationData;
-            [ReadOnly] public ComponentDataArray<MeshCullingComponent> MeshCulling;
-        }
+            All = new[] { ComponentType.Create<Rotation>(), ComponentType.Create<DokabenRotationData>() },
+            None = Array.Empty<ComponentType>(),
+            Any = Array.Empty<ComponentType>(),
+        };
+        private readonly NativeList<EntityArchetype> foundArchetypes = new NativeList<EntityArchetype>(Allocator.Persistent);
+        private EntityManager manager;
+        protected override void OnCreateManager() => manager = EntityManager;
+        protected override void OnDestroyManager() => foundArchetypes.Dispose();
 
-        [Inject] ParentGroup _parentGroup;
-
-        protected override void OnUpdate()
+        protected override unsafe void OnUpdate()
         {
             float deltaTime = Time.deltaTime;
-            for (int i = 0; i < this._parentGroup.Length; i++)
+            manager.AddMatchingArchetypes(query, foundArchetypes);
+            var RotationTypeRW = manager.GetArchetypeChunkComponentType<Rotation>(false);
+            var DokabenRotationDataTypeRW = manager.GetArchetypeChunkComponentType<DokabenRotationData>(false);
+            using (var chunks = manager.CreateArchetypeChunkArray(foundArchetypes, Allocator.TempJob))
             {
-                // カリングされていたら計算しない
-                var culling = this._parentGroup.MeshCulling[i];
-                if (culling.CullStatus == 1) { return; }
-
-                var rot = this._parentGroup.LocalRotation[i];
-                var dokabenRotData = this._parentGroup.DokabenRotationData[i];
-
-                if (dokabenRotData.DeltaTimeCounter >= Constants.ParentTest.Interval)
+                for (int i = 0; i < chunks.Length; ++i)
                 {
-                    dokabenRotData.CurrentRot += dokabenRotData.CurrentAngle;
-                    var axis = new float3(1, 0, 0);
-                    rot.Value = quaternion.axisAngle(axis, math.radians(dokabenRotData.CurrentRot));
-                    dokabenRotData.FrameCounter = dokabenRotData.FrameCounter + 1;
-                    if (dokabenRotData.FrameCounter >= Constants.ParentTest.Framerate)
+                    var rots = chunks[i].GetNativeArray(RotationTypeRW);
+                    if (rots.Length == 0) continue;
+                    var dokabens = chunks[i].GetNativeArray(DokabenRotationDataTypeRW);
+                    var rotPtr = (Rotation*)NativeArrayUnsafeUtility.GetUnsafePtr(rots);
+                    var dokabenPtr = (DokabenRotationData*)NativeArrayUnsafeUtility.GetUnsafePtr(dokabens);
+                    for (int j = 0; j < rots.Length; ++j, ++rotPtr, ++dokabenPtr)
                     {
-                        dokabenRotData.CurrentAngle = -dokabenRotData.CurrentAngle;
-                        dokabenRotData.FrameCounter = 0;
+                        if (dokabenPtr->DeltaTimeCounter < Constants.ParentTest.Interval)
+                        {
+                            dokabenPtr->DeltaTimeCounter += deltaTime;
+                            continue;
+                        }
+                        dokabenPtr->DeltaTimeCounter = 0;
+                        dokabenPtr->CurrentRot += dokabenPtr->CurrentAngle;
+                        rotPtr->Value = quaternion.AxisAngle(new float3(1, 0, 0), math.radians(dokabenPtr->CurrentRot));
+                        ++dokabenPtr->FrameCounter;
+                        if (dokabenPtr->FrameCounter >= Constants.ParentTest.Framerate)
+                        {
+                            dokabenPtr->CurrentAngle = -dokabenPtr->CurrentAngle;
+                            dokabenPtr->FrameCounter = 0;
+                        }
                     }
-                    dokabenRotData.DeltaTimeCounter = 0f;
                 }
-                else
-                {
-                    dokabenRotData.DeltaTimeCounter += deltaTime;
-                }
-
-                this._parentGroup.LocalRotation[i] = rot;
-                this._parentGroup.DokabenRotationData[i] = dokabenRotData;
             }
         }
     }
 }
-#endif
