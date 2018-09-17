@@ -61,6 +61,11 @@ namespace MainContents
                 entities.Dispose();
             }
         }
+
+        /// <summary>
+        /// ドカベンロゴを表示するEntityのEntityArchetype
+        /// 最低限MeshInstanceRendererComponentを含まなくてはならぬ
+        /// </summary>
         protected abstract EntityArchetype Archetype { get; }
 
         protected virtual void Start()
