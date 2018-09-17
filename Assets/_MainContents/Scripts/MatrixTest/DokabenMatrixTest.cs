@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Transforms;
 using Unity.Rendering;
 
@@ -9,30 +8,36 @@ namespace MainContents.MatrixTest
 {
     public sealed class DokabenMatrixTest : DokabenTestBase
     {
+        public bool useJobSystem;
+        private EntityArchetype archetype;
+        protected override EntityArchetype Archetype => archetype;
+
         /// <summary>
         /// MonoBehaviour.Start
         /// </summary>
-        void Start()
+        protected override void Start()
         {
-            var entityManager = World.Active.GetOrCreateManager<EntityManager>();
+            base.Start();
+            var entityManager = World.Active.GetExistingManager<EntityManager>();
 
-            var archetype = entityManager.CreateArchetype(
-                typeof(MatrixTestComponentData),
-                typeof(MeshCullingComponent),
-                typeof(TransformMatrix));
+            archetype = entityManager.CreateArchetype(
+                ComponentType.Create<MatrixTestComponentData>(),
+                ComponentType.Create<LocalToWorld>(),
+                ComponentType.Create<MeshInstanceRenderer>());
 
-            base.CreateEntitiesFromRandomPosition((randomPosition, look) =>
+            CreateEntitiesFromRandomPosition((entity, randomPosition) =>
+            {
+                entityManager.SetComponentData(entity, new MatrixTestComponentData
                 {
-                    var entity = entityManager.CreateEntity(archetype);
-                    entityManager.SetComponentData(
-                        entity,
-                        new MatrixTestComponentData
-                        {
-                            AnimationHeader = 0f,
-                            Position = randomPosition,
-                        });
-                    entityManager.AddSharedComponentData(entity, look);
+                    // AnimationHeader = 0f,
+                    Position = randomPosition,
                 });
+            });
+            if (useJobSystem)
+                World.Active.CreateManager(typeof(MatrixTestJobSystem));
+            else
+                World.Active.CreateManager(typeof(MatrixTestSystem));
+            ScriptBehaviourUpdateOrder.UpdatePlayerLoop(World.Active);
         }
     }
 }
