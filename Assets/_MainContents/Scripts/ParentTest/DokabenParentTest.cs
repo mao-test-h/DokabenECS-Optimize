@@ -15,6 +15,7 @@ namespace MainContents.ParentTest
         /// </summary>
         [SerializeField] Vector3 _childOffset;
         [SerializeField] bool useJobSystem;
+        [SerializeField] bool useBillboardSystem;
 
         private EntityArchetype archetype;
         protected override EntityArchetype Archetype => archetype;
@@ -81,9 +82,19 @@ namespace MainContents.ParentTest
                 });
 
             World.Active.CreateManager(typeof(EndFrameTransformSystem));
-            if (useJobSystem)
-                World.Active.CreateManager(typeof(ParentTestJobSystem));
-            else World.Active.CreateManager(typeof(ParentTestSystem));
+            if (useBillboardSystem)
+            {
+                if (useJobSystem)
+                    World.Active.CreateManager(typeof(ParentTestBillboardJobSystem));
+                else
+                    World.Active.CreateManager(typeof(ParentTestBillboardSystem));
+            }
+            else
+            {
+                if (useJobSystem)
+                    World.Active.CreateManager(typeof(ParentTestJobSystem));
+                else World.Active.CreateManager(typeof(ParentTestSystem));
+            }
             ScriptBehaviourUpdateOrder.UpdatePlayerLoop(World.Active);
         }
     }
