@@ -117,8 +117,8 @@ namespace MainContents.VRTest
 
             World.Active.CreateManager(typeof(EndFrameTransformSystem));
             if (useJobSystem)
-                World.Active.CreateManager(typeof(ParentTestBillboardJobSystem));
-            else World.Active.CreateManager(typeof(ParentTestBillboardSystem));
+                World.Active.CreateManager(typeof(MainContents.Billboard.ECS.ParentTestBillboardJobSystem));
+            else World.Active.CreateManager(typeof(MainContents.Billboard.ECS.ParentTestBillboardSystem));
             ScriptBehaviourUpdateOrder.UpdatePlayerLoop(World.Active);
         }
 
